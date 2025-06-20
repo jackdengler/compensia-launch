@@ -1,0 +1,163 @@
+{
+  "password": null,
+  "clients": {
+    "client-1wbvux2u": {
+      "meetings": [
+        {
+          "id": "adhoc",
+          "isAdHoc": true,
+          "name": "",
+          "date": "",
+          "deliverables": []
+        },
+        {
+          "id": "1750296906228",
+          "date": "06/18",
+          "name": "Aug 2025 CC Meeting",
+          "isAdHoc": false,
+          "deliverables": [
+            {
+              "id": "1750296913246",
+              "name": "BOD Assessment",
+              "tasks": [
+                {
+                  "id": "1750442491197",
+                  "name": "Report to Client",
+                  "assignees": [
+                    "Rachel"
+                  ],
+                  "due": "6/26",
+                  "complete": false
+                },
+                {
+                  "id": "1750442463470",
+                  "name": "Report to Rachel",
+                  "assignees": [
+                    "Jack"
+                  ],
+                  "due": "6/24",
+                  "complete": false
+                },
+                {
+                  "id": "1750296917295",
+                  "name": "Report to Jack",
+                  "assignees": [
+                    "Gabe"
+                  ],
+                  "due": "6/19",
+                  "complete": false
+                },
+                {
+                  "id": "1750442463621",
+                  "name": "Data to Jack",
+                  "assignees": [
+                    "Gabe"
+                  ],
+                  "due": "6/19",
+                  "complete": false
+                }
+              ],
+              "bucket": "Downstream"
+            }
+          ]
+        }
+      ],
+      "pastMeetings": [
+        {
+          "id": "adhoc_past",
+          "isAdHoc": true,
+          "name": "",
+          "date": "",
+          "deliverables": []
+        }
+      ],
+      "team": [
+        "Jack",
+        "Gabe",
+        "Rachel"
+      ],
+      "name": "Generation Bio",
+      "logo": "",
+      "baseColor": "#4A5568",
+      "headerColor": "#F7FAFC",
+      "sidebarColor": "#EDF2F7",
+      "status": {
+        "sector": 1,
+        "status": 0,
+        "type": 0
+      },
+      "notes": "",
+      "shared": false,
+      "owner": "Jack"
+    },
+    "client-9comqihm": {
+      "meetings": [
+        {
+          "id": "adhoc",
+          "isAdHoc": true,
+          "name": "",
+          "date": "",
+          "deliverables": []
+        },
+        {
+          "id": "1750443172536",
+          "date": "06/20",
+          "name": "Sep 2025 CC Meeting",
+          "isAdHoc": false,
+          "deliverables": [
+            {
+              "id": "1750443181249",
+              "name": "LTI/STI",
+              "tasks": [
+                {
+                  "id": "1750443466047",
+                  "name": "Okkkk",
+                  "assignees": [],
+                  "due": "",
+                  "complete": false
+                }
+              ],
+              "bucket": "Downstream"
+            },
+            {
+              "id": "1750443186486",
+              "name": "Exec",
+              "tasks": [],
+              "bucket": "Upstream"
+            },
+            {
+              "id": "1750443186589",
+              "name": "Peers",
+              "tasks": [],
+              "bucket": "Active Work"
+            }
+          ]
+        }
+      ],
+      "pastMeetings": [
+        {
+          "id": "adhoc_past",
+          "isAdHoc": true,
+          "name": "",
+          "date": "",
+          "deliverables": []
+        }
+      ],
+      "team": [
+        "Jack",
+        "Rose",
+        "Tom B.",
+        "Matt"
+      ],
+      "name": "Samsara",
+      "logo": "",
+      "baseColor": "#4A5568",
+      "headerColor": "#F7FAFC",
+      "sidebarColor": "#EDF2F7",
+      "status": {},
+      "notes": "",
+      "shared": false,
+      "owner": "Jack"
+    }
+  }
+}
