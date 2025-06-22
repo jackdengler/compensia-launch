@@ -57,6 +57,8 @@ app.post('/api/create', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find({}, 'username password');
+    if (!Array.isArray(users)) throw new Error("User.find did not return an array");
+
     const result = users.map(u => ({
       username: u.username,
       hasPassword: !!u.password
@@ -67,6 +69,7 @@ app.get('/api/users', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 // Login
 app.post('/api/login', async (req, res) => {
