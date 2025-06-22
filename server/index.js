@@ -69,19 +69,18 @@ app.post('/api/create', async (req, res) => {
 // GET all users (for login UI)
 app.get('/api/users', async (req, res) => {
   try {
-    const users = await User.find({}, 'username password');
-    const result = Array.isArray(users)
-      ? users.map(u => ({
-          username: u.username,
-          hasPassword: !!u.password
-        }))
-      : [];
+    const users = (await User.find({}, 'username password')) || [];
+    const result = users.map(u => ({
+      username: u.username,
+      hasPassword: !!u.password
+    }));
     res.json(result);
   } catch (err) {
-    console.error('❌ /api/users failed:', err);
-    res.status(500).json({ error: 'Server error during user fetch' });
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 
