@@ -157,23 +157,23 @@ function ClientManagerInner({ username }) {
 
     setClientList(combinedData);
 
-    await fetch(`${BACKEND_URL}/api/data/${username}`, {
+    await fetch(`${BACKEND_URL}/api/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(personal),
-    });
-
-    await fetch(`${BACKEND_URL}/api/shared`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(shared),
+      body: JSON.stringify({ username, clients: { ...personal, ...shared } }),
     });
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const personalRes = await fetch(`${BACKEND_URL}/api/data/${username}`);
+        const res = await fetch(`${BACKEND_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password: '' }),
+      });
+      const data = await res.json();
+      const personal = data.clients || {};
         const personal = await personalRes.json();
 
         setClientList(personal);
