@@ -39,17 +39,30 @@ const User = mongoose.model('User', userSchema);
 // Create new account
 app.post('/api/create', async (req, res) => {
   const { username, password } = req.body;
-  if (!username) return res.status(400).json({ error: 'Username required' });
+
+  // Validate input
+  if (!username || typeof username !== 'string' || username.trim() === '') {
+    return res.status(400).json({ error: 'Username is required and must be a non-empty string' });
+  }
 
   try {
-    const exists = await User.findOne({ username });
-    if (exists) return res.status(409).json({ error: 'User already exists' });
+    const existingUser = await User.findOne({ username: username.trim() });
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists' });
+    }
 
-    const newUser = new User({ username, password, clients: {} });
+    const newUser = new User({
+      username: username.trim(),
+      password: password || '',
+      clients: {},
+    });
+
     await newUser.save();
+
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ /api/create failed:', err);
+    res.status(500).json({ error: 'Server error during account creation' });
   }
 });
 
