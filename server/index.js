@@ -58,7 +58,6 @@ app.post('/api/create', async (req, res) => {
     });
 
     await newUser.save();
-
     res.json({ success: true });
   } catch (err) {
     console.error('❌ /api/create failed:', err);
@@ -66,27 +65,24 @@ app.post('/api/create', async (req, res) => {
   }
 });
 
+
 // GET all users (for login UI)
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find({}, 'username password');
-    
-    if (!users || typeof users.map !== 'function') {
-      console.error('users is not iterable:', users);
-      return res.status(500).json({ error: 'Invalid user data returned from DB' });
-    }
-
-    const result = users.map(u => ({
-      username: u.username,
-      hasPassword: !!u.password
-    }));
-
+    const result = Array.isArray(users)
+      ? users.map(u => ({
+          username: u.username,
+          hasPassword: !!u.password
+        }))
+      : [];
     res.json(result);
   } catch (err) {
-    console.error('Error fetching users:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ /api/users failed:', err);
+    res.status(500).json({ error: 'Server error during user fetch' });
   }
 });
+
 
 
 
