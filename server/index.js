@@ -53,6 +53,21 @@ app.post('/api/create', async (req, res) => {
   }
 });
 
+// GET all users (for login UI)
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'username password');
+    const result = users.map(u => ({
+      username: u.username,
+      hasPassword: !!u.password
+    }));
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Login
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
@@ -87,10 +102,13 @@ app.post('/api/save', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// Optional legacy support for create-user
 app.post('/api/create-user', async (req, res) => {
   req.url = '/api/create'; // forward to original route
   app._router.handle(req, res);
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
