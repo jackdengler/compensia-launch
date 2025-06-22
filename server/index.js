@@ -57,18 +57,24 @@ app.post('/api/create', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find({}, 'username password');
-    if (!Array.isArray(users)) throw new Error("User.find did not return an array");
+    
+    if (!users || typeof users.map !== 'function') {
+      console.error('users is not iterable:', users);
+      return res.status(500).json({ error: 'Invalid user data returned from DB' });
+    }
 
     const result = users.map(u => ({
       username: u.username,
       hasPassword: !!u.password
     }));
+
     res.json(result);
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 // Login
