@@ -1,7 +1,12 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+const dotenv = require('dotenv');
+
+// ✅ Dynamically load .env.local or .env.production
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.local';
+dotenv.config({ path: path.resolve(__dirname, envFile) });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +35,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // --- Routes ---
+
 // Create new account
 app.post('/api/create', async (req, res) => {
   const { username, password } = req.body;
