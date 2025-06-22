@@ -1,111 +1,86 @@
-require('dotenv').config(); // ✅ Load environment variables from .env
-
-// Simple backend for Mona project management app
+require('dotenv').config();
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '../user_data');
+const MONGODB_URI = process.env.MONGODB_URI;
 
 app.use(cors());
 app.use(express.json());
 
-// Helper to read/write user files
-function getUserFile(username) {
-  return path.join(DATA_DIR, `${username}.json`);
-}
+// --- Connect to MongoDB ---
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('✅ Connected to MongoDB');
+}).catch((err) => {
+  console.error('❌ MongoDB connection error:', err);
+});
 
-// --- User Account Endpoints ---
-app.post('/api/create', (req, res) => {
+// --- Schema & Model ---
+const userSchema = new mongoose.Schema({
+  username: { type: String, unique: true },
+  password: String,
+  clients: Object,
+});
+
+const User = mongoose.model('User', userSchema);
+
+// --- Routes ---
+// Create new account
+app.post('/api/create', async (req, res) => {
   const { username, password } = req.body;
   if (!username) return res.status(400).json({ error: 'Username required' });
-  const userFile = getUserFile(username);
-  if (fs.existsSync(userFile)) {
-    return res.status(409).json({ error: 'User already exists' });
-  }
-  fs.writeFileSync(userFile, JSON.stringify({ password, clients: {} }, null, 2));
-  res.json({ success: true });
-});
 
-app.post('/api/login', (req, res) => {
-  console.log('POST /api/login', req.body);
-  const { username, password } = req.body;
-  const userFile = getUserFile(username);
-  if (!fs.existsSync(userFile)) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  const data = JSON.parse(fs.readFileSync(userFile));
-  const storedPw = data.password;
-  const inputPw = password;
-  const bothEmpty = (!storedPw && !inputPw);
-  if (!bothEmpty && storedPw !== inputPw) {
-    return res.status(401).json({ error: 'Invalid password' });
-  }
-  res.json({ success: true });
-});
-
-// --- User Data Endpoints ---
-app.get('/api/data/:username', (req, res) => {
-  console.log('GET /api/data/' + req.params.username);
-  const { username } = req.params;
-  const userFile = getUserFile(username);
-  if (!fs.existsSync(userFile)) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  const data = JSON.parse(fs.readFileSync(userFile));
-  res.json(data.clients || {});
-});
-
-app.post('/api/data/:username', (req, res) => {
-  console.log('POST /api/data/' + req.params.username, req.body);
-  const { username } = req.params;
-  const userFile = getUserFile(username);
-  if (!fs.existsSync(userFile)) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  const data = JSON.parse(fs.readFileSync(userFile));
-  // Accept both { clients: ... } and just the clients object
-  if (req.body && typeof req.body === 'object' && req.body.clients) {
-    data.clients = req.body.clients;
-  } else {
-    data.clients = req.body;
-  }
   try {
-    fs.writeFileSync(userFile, JSON.stringify(data, null, 2));
+    const exists = await User.findOne({ username });
+    if (exists) return res.status(409).json({ error: 'User already exists' });
+
+    const newUser = new User({ username, password, clients: {} });
+    await newUser.save();
     res.json({ success: true });
   } catch (err) {
-    console.error('Failed to write user data:', err);
-    res.status(500).json({ error: 'Failed to save data' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// --- Shared Clients Endpoints ---
-const sharedFile = path.join(DATA_DIR, 'shared.json');
+// Login
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-app.get('/api/shared', (req, res) => {
-  if (!fs.existsSync(sharedFile)) {
-    fs.writeFileSync(sharedFile, '{}');
+    const bothEmpty = !user.password && !password;
+    if (!bothEmpty && user.password !== password)
+      return res.status(403).json({ error: 'Incorrect password' });
+
+    res.json({ clients: user.clients || {} });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
-  const data = JSON.parse(fs.readFileSync(sharedFile));
-  res.json(data);
 });
 
-app.post('/api/shared', (req, res) => {
-  fs.writeFileSync(sharedFile, JSON.stringify(req.body, null, 2));
-  res.json({ success: true });
+// Save client data
+app.post('/api/save', async (req, res) => {
+  const { username, clients } = req.body;
+  try {
+    const user = await User.findOneAndUpdate(
+      { username },
+      { $set: { clients } },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-// --- Users List (for admin) ---
-app.get('/api/users', (req, res) => {
-  const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json') && f !== 'shared.json');
-  const users = files.map(f => ({ username: path.basename(f, '.json') }));
-  res.json(users);
-});
-
-// --- Start Server ---
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
