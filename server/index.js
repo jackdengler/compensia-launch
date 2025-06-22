@@ -90,3 +90,7 @@ app.post('/api/save', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+app.post('/api/create-user', async (req, res) => {
+  req.url = '/api/create'; // forward to original route
+  app._router.handle(req, res);
+});
