@@ -39,17 +39,13 @@ const User = mongoose.model('User', userSchema);
 // Create new account
 app.post('/api/create', async (req, res) => {
   const { username, password } = req.body;
-
-  // Validate input
-  if (!username || typeof username !== 'string' || username.trim() === '') {
-    return res.status(400).json({ error: 'Username is required and must be a non-empty string' });
+  if (!username || typeof username !== 'string') {
+    return res.status(400).json({ error: 'Invalid or missing username' });
   }
 
   try {
-    const existingUser = await User.findOne({ username: username.trim() });
-    if (existingUser) {
-      return res.status(409).json({ error: 'User already exists' });
-    }
+    const exists = await User.findOne({ username });
+    if (exists) return res.status(409).json({ error: 'User already exists' });
 
     const newUser = new User({
       username: username.trim(),
@@ -60,26 +56,30 @@ app.post('/api/create', async (req, res) => {
     await newUser.save();
     res.json({ success: true });
   } catch (err) {
-    console.error('❌ /api/create failed:', err);
+    console.error('❌ Error creating user:', err);
     res.status(500).json({ error: 'Server error during account creation' });
   }
 });
 
 
+
 // GET all users (for login UI)
 app.get('/api/users', async (req, res) => {
   try {
-    const users = (await User.find({}, 'username password')) || [];
-    const result = users.map(u => ({
-      username: u.username,
-      hasPassword: !!u.password
-    }));
+    const users = await User.find({}, 'username password');
+    const result = Array.isArray(users)
+      ? users.map(u => ({
+          username: u.username,
+          hasPassword: !!u.password
+        }))
+      : [];
     res.json(result);
   } catch (err) {
-    console.error('Error fetching users:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ /api/users error:', err);
+    res.status(500).json({ error: 'Server error during user fetch' });
   }
 });
+
 
 
 
