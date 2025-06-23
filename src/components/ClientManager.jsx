@@ -618,43 +618,54 @@ function ClientManagerInner({ username }) {
 
           <Box borderBottom="1px solid" borderColor="gray.200" my={2} opacity={0.5} />
 
-          {sortedClientIds.map((id) => (
-  <Button
-    key={id}
-    size="sm"
-    variant={activeClientId === id ? 'solid' : 'ghost'}
-    onClick={() => setActiveClientId(id)}
-    textAlign="center"
-    justifyContent="center"
-    whiteSpace="nowrap"
-    overflow="hidden"
-    textOverflow="ellipsis"
-    borderRadius="md"
-    fontWeight="medium"
-    color={activeClientId === id ? 'black' : 'gray.600'}
-    bg={activeClientId === id ? (clientList[id]?.sidebarColor || 'blue.100') : 'transparent'}
-    _hover={{
-      bg: activeClientId === id
-        ? (clientList[id]?.sidebarColor || 'blue.100')
-        : 'gray.200',
-      color: 'gray.900',
-    }}
-    _active={{
-      transform: 'none'
-    }}
-    boxShadow={activeClientId === id ? 'sm' : 'none'}
-  >
-    <HStack spacing={2} width="auto">
-      {clientList[id]?.shared && (
-        <Users size={14} color={activeClientId === id ? 'black' : '#666666'} />
-      )}
-      <Text fontSize="sm" isTruncated>
-        {clientList[id]?.name?.trim() || 'Unnamed Client'}
-      </Text>
-    </HStack>
-  </Button>
-))}
-
+          {sortedClientIds.map((id) => {
+            const sidebarColor = clientList[id]?.sidebarColor || '#e3f0ff';
+            // Use a brighter border color for the selected client
+            const borderColor = activeClientId === id
+              ? boostColor(clientList[id]?.baseColor || '#4A90E2')
+              : 'transparent';
+            return (
+              <Button
+                key={id}
+                size="sm"
+                variant={activeClientId === id ? 'solid' : 'ghost'}
+                onClick={() => setActiveClientId(id)}
+                textAlign="center"
+                justifyContent="center"
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                borderRadius="md"
+                fontWeight="medium"
+                color={activeClientId === id ? 'black' : 'gray.600'}
+                bg={activeClientId === id ? sidebarColor : 'transparent'}
+                border={activeClientId === id ? '2px solid' : '2px solid transparent'}
+                borderColor={borderColor}
+                boxShadow={activeClientId === id ? '0 2px 12px 0 rgba(0,0,0,0.08)' : 'none'}
+                transform={activeClientId === id ? 'scale(1.04)' : 'none'}
+                transition="all 0.18s cubic-bezier(.4,2,.6,1)"
+                _hover={{
+                  bg: activeClientId === id ? sidebarColor : 'gray.200',
+                  color: 'gray.900',
+                  boxShadow: activeClientId === id ? '0 4px 16px 0 rgba(0,0,0,0.12)' : 'sm',
+                  transform: 'scale(1.045)',
+                }}
+                _active={{
+                  transform: 'scale(1.01)',
+                  boxShadow: activeClientId === id ? '0 1px 4px 0 rgba(0,0,0,0.10)' : 'none',
+                }}
+              >
+                <HStack spacing={2} width="auto">
+                  {clientList[id]?.shared && (
+                    <Users size={14} color={activeClientId === id ? 'black' : '#666666'} />
+                  )}
+                  <Text fontSize="sm" isTruncated>
+                    {clientList[id]?.name?.trim() || 'Unnamed Client'}
+                  </Text>
+                </HStack>
+              </Button>
+            );
+          })}
 
           <Menu>
             <MenuButton
