@@ -82,9 +82,16 @@ export default function LoginPage({ onLogin }) {
     try {
       // First get list of users to check if this one exists
       const usersRes = await fetch(`${BACKEND_URL}/api/users`);
-      const usersList = await usersRes.json();
-      
-      const user = usersList.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+const usersList = await usersRes.json();
+
+if (!Array.isArray(usersList)) {
+  throw new Error("Failed to load users list");
+}
+
+const user = usersList.find(u => 
+  u.username.toLowerCase() === username.trim().toLowerCase()
+);
+
       
       if (!user) {
         setError('User not found. Would you like to create a new account?');
