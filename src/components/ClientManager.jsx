@@ -619,42 +619,42 @@ function ClientManagerInner({ username }) {
           <Box borderBottom="1px solid" borderColor="gray.200" my={2} opacity={0.5} />
 
           {sortedClientIds.map((id) => (
-            <Button
-              key={id}
-              size="sm"
-              variant={activeClientId === id ? 'solid' : 'ghost'}
-              onClick={() => setActiveClientId(id)}
-              textAlign="center"
-              justifyContent="center"
-              whiteSpace="nowrap"
-              overflow="hidden"
-              textOverflow="ellipsis"
-              borderRadius="md"
-              fontWeight="medium"
-              color={activeClientId === id ? 'black' : 'gray.600'}
-              bg={activeClientId === id ? (clientList[id]?.sidebarColor || 'white') : 'transparent'}
-              _hover={{
-                bg: activeClientId === id ? (clientList[id]?.sidebarColor || 'white') : 'gray.200',
-                color: 'gray.900',
-              }}
-              _active={{
-                transform: 'none'
-              }}
-              boxShadow={activeClientId === id ? 'sm' : 'none'}
-            >
-              <HStack spacing={2} width="auto">
-                {clientList[id]?.shared && (
-                  <Users size={14} color={activeClientId === id ? 'black' : '#666666'} />
-                )}
-                <Text 
-                  fontSize="sm"
-                  isTruncated
-                >
-                  {clientList[id]?.name?.trim() || 'Unnamed Client'}
-                </Text>
-              </HStack>
-            </Button>
-          ))}
+  <Button
+    key={id}
+    size="sm"
+    variant={activeClientId === id ? 'solid' : 'ghost'}
+    onClick={() => setActiveClientId(id)}
+    textAlign="center"
+    justifyContent="center"
+    whiteSpace="nowrap"
+    overflow="hidden"
+    textOverflow="ellipsis"
+    borderRadius="md"
+    fontWeight="medium"
+    color={activeClientId === id ? 'black' : 'gray.600'}
+    bg={activeClientId === id ? (clientList[id]?.sidebarColor || 'blue.100') : 'transparent'}
+    _hover={{
+      bg: activeClientId === id
+        ? (clientList[id]?.sidebarColor || 'blue.100')
+        : 'gray.200',
+      color: 'gray.900',
+    }}
+    _active={{
+      transform: 'none'
+    }}
+    boxShadow={activeClientId === id ? 'sm' : 'none'}
+  >
+    <HStack spacing={2} width="auto">
+      {clientList[id]?.shared && (
+        <Users size={14} color={activeClientId === id ? 'black' : '#666666'} />
+      )}
+      <Text fontSize="sm" isTruncated>
+        {clientList[id]?.name?.trim() || 'Unnamed Client'}
+      </Text>
+    </HStack>
+  </Button>
+))}
+
 
           <Menu>
             <MenuButton
