@@ -171,6 +171,24 @@ function ClientManagerInner({ username }) {
   };
 
   useEffect(() => {
+    if (!username || !clientList) return;
+  
+    const timeout = setTimeout(() => {
+      localStorage.setItem(`ClientList_${username}`, JSON.stringify(clientList));
+  
+      fetch(`${BACKEND_URL}/api/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, clients: clientList }),
+      }).catch((err) => {
+        console.error("❌ Failed to autosave:", err);
+      });
+    }, 500); // 500ms delay
+  
+    return () => clearTimeout(timeout);
+  }, [clientList, username]);
+
+  useEffect(() => {
     const stored = localStorage.getItem(`ClientList_${username}`);
     const data = stored ? JSON.parse(stored) : {};
   
@@ -1382,21 +1400,5 @@ export default function ClientManager({ username, onLogout }) {
     </SettingsProvider>
   );
 }
-useEffect(() => {
-  if (!username || !clientList) return;
 
-  const timeout = setTimeout(() => {
-    localStorage.setItem(`ClientList_${username}`, JSON.stringify(clientList));
-
-    fetch(`${BACKEND_URL}/api/save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, clients: clientList }),
-    }).catch((err) => {
-      console.error("❌ Failed to autosave:", err);
-    });
-  }, 500); // 500ms delay
-
-  return () => clearTimeout(timeout);
-}, [clientList, username]);
 
