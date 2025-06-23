@@ -295,6 +295,9 @@ function ClientManagerInner({ username }) {
 
   useEffect(() => {
     const client = clientList[activeClientId];
+    const isDefaultSidebar = !client?.sidebarColor || [
+      '#EDF2F7', '#e3f0ff', 'gray.100', '#F7FAFC', '#4A5568', 'blue.100'
+    ].includes(client?.sidebarColor);
     if (!client?.name || ['__calendar__', '__weekly__'].includes(activeClientId)) {
       setLogoUrl('');
       setCurrentColors({
@@ -318,23 +321,24 @@ function ClientManagerInner({ username }) {
     const domain = client.name.trim().replace(/\s+/g, '').toLowerCase();
     const url = `https://logo.clearbit.com/${domain}.com`;
     let img;
-    
-    if (client.logo === url) {
+
+    // Always try to extract color if sidebarColor is missing or default
+    if ((client.logo === url && !isDefaultSidebar)) {
       setLogoUrl(url);
       setLogoError(false);
     } else {
       setLogoUrl('');
       setLogoError(false);
-      
+
       img = new window.Image();
       img.crossOrigin = "anonymous";
-      
+
       img.onload = () => {
         setLogoUrl(url);
         setLogoError(false);
-        
+
         const colors = extractColor(img);
-        if (colors && !client.headerColor) {
+        if (colors) {
           setCurrentColors(colors);
           updateClientData(activeClientId, {
             ...client,
@@ -343,7 +347,7 @@ function ClientManagerInner({ username }) {
           });
         }
       };
-      
+
       img.onerror = () => {
         setLogoError(true);
         if (client?.logo) {
@@ -353,7 +357,7 @@ function ClientManagerInner({ username }) {
           });
         }
       };
-      
+
       img.src = url;
     }
 
