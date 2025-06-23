@@ -624,10 +624,6 @@ function ClientManagerInner({ username }) {
 
           {sortedClientIds.map((id) => {
             const sidebarColor = clientList[id]?.sidebarColor || '#e3f0ff';
-            // Use a brighter border color for the selected client
-            const borderColor = activeClientId === id
-              ? boostColor(clientList[id]?.baseColor || '#4A90E2')
-              : 'transparent';
             return (
               <Button
                 key={id}
@@ -643,8 +639,6 @@ function ClientManagerInner({ username }) {
                 fontWeight="medium"
                 color={activeClientId === id ? 'black' : 'gray.600'}
                 bg={activeClientId === id ? sidebarColor : 'transparent'}
-                border={activeClientId === id ? '2px solid' : '2px solid transparent'}
-                borderColor={borderColor}
                 boxShadow={activeClientId === id ? '0 2px 12px 0 rgba(0,0,0,0.08)' : 'none'}
                 transform={activeClientId === id ? 'scale(1.04)' : 'none'}
                 transition="all 0.18s cubic-bezier(.4,2,.6,1)"
