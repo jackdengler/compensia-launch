@@ -171,28 +171,20 @@ function ClientManagerInner({ username }) {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const personalRes = await fetch(`${BACKEND_URL}/api/data/${username}`);
-        const personal = await personalRes.json();
-
-        setClientList(personal);
-
-        const storedActive = localStorage.getItem(`LastActiveClientId_${username}`);
-        if (storedActive && personal[storedActive]) {
-          setActiveClientId(storedActive);
-        } else {
-          const ids = Object.keys(personal);
-          if (ids.length > 0) setActiveClientId(ids[0]);
-        }
-      } catch (err) {
-        console.error('Failed to load data from server:', err);
-        setClientList({});
-      }
-    };
-
-    fetchData();
+    const stored = localStorage.getItem(`ClientList_${username}`);
+    const data = stored ? JSON.parse(stored) : {};
+  
+    setClientList(data);
+  
+    const storedActive = localStorage.getItem(`LastActiveClientId_${username}`);
+    if (storedActive && data[storedActive]) {
+      setActiveClientId(storedActive);
+    } else {
+      const ids = Object.keys(data);
+      if (ids.length > 0) setActiveClientId(ids[0]);
+    }
   }, [username]);
+  
 
   useEffect(() => {
     if (activeClientId) {
@@ -1390,3 +1382,21 @@ export default function ClientManager({ username, onLogout }) {
     </SettingsProvider>
   );
 }
+useEffect(() => {
+  if (!username || !clientList) return;
+
+  const timeout = setTimeout(() => {
+    localStorage.setItem(`ClientList_${username}`, JSON.stringify(clientList));
+
+    fetch(`${BACKEND_URL}/api/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, clients: clientList }),
+    }).catch((err) => {
+      console.error("❌ Failed to autosave:", err);
+    });
+  }, 500); // 500ms delay
+
+  return () => clearTimeout(timeout);
+}, [clientList, username]);
+

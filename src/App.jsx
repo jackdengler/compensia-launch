@@ -23,20 +23,14 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
-  // Load user data
+  // ✅ Replaced fetch call with localStorage load
   useEffect(() => {
     if (!currentUser) return;
     setLoading(true);
-    fetch(`/api/data/${currentUser}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setClientList(data.clients || {});
-        setLoading(false);
-      })
-      .catch(() => {
-        console.error("Failed to load user data");
-        setLoading(false);
-      });
+    const stored = localStorage.getItem(`ClientList_${currentUser}`);
+    const parsed = stored ? JSON.parse(stored) : {};
+    setClientList(parsed.clients || parsed);
+    setLoading(false);
   }, [currentUser]);
 
   // Load shared clients
@@ -47,19 +41,7 @@ function App() {
       .catch((err) => console.error('Failed to load shared clients', err));
   }, []);
 
-  // Save on every change
-  useEffect(() => {
-    // Only save if there's a user and clientList has been populated at least once from fetch
-    // or if it's not empty due to local changes.
-    if (!currentUser || (loading && Object.keys(clientList).length === 0)) return;
-    if (Object.keys(clientList).length > 0 || Object.keys(sharedClients).length > 0) { // only save if there is data
-        fetch(`/api/data/${currentUser}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ clients: clientList }),
-        });
-    }
-  }, [clientList, currentUser, loading, sharedClients]);
+  // ❌ Removed broken POST to /api/data/:username
 
   const onClientChange = (clientId, updatedClient, isShared = false) => {
     console.log("onClientChange in App.jsx called with:", clientId, updatedClient, isShared);
@@ -94,7 +76,6 @@ function App() {
     );
   }
 
-  // TEMP: Provide a minimal mock clientList if the real one is empty, for isolated testing
   const finalClientList = Object.keys(clientList).length > 0 ? clientList : {
     'mock-client-1': {
       id: 'mock-client-1',
@@ -104,8 +85,8 @@ function App() {
           id: 'mock-meeting-1',
           name: 'Mock Meeting',
           deliverables: [
-            { id: 'd1', name: 'Deliverable Alpha', tasks: [{id: 't1', name: 'Task One'}], bucket: 'Unassigned' },
-            { id: 'd2', name: 'Deliverable Beta', tasks: [{id: 't2', name: 'Task Two'}], bucket: 'Active Work' },
+            { id: 'd1', name: 'Deliverable Alpha', tasks: [{ id: 't1', name: 'Task One' }], bucket: 'Unassigned' },
+            { id: 'd2', name: 'Deliverable Beta', tasks: [{ id: 't2', name: 'Task Two' }], bucket: 'Active Work' },
           ]
         }
       ],
@@ -123,7 +104,7 @@ function App() {
         }}
       />
       <SettingsDrawer currentUser={currentUser} setCurrentUser={setCurrentUser} />
-      
+
       {/* Test: Render TaskBuckets outside of Tabs */}
       <Box p={4} border="2px dashed red" my={4}>
         <Text fontWeight="bold" mb={2} color="red.500">
@@ -133,7 +114,6 @@ function App() {
       </Box>
 
       {/* Original Tabs structure - can be commented out or left for context */}
-      {/* 
       <Box p={2}>
         <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed">
           <TabList>
@@ -142,7 +122,7 @@ function App() {
             <Tab isDisabled={!selectedClient}>Calendar</Tab>
             <Tab isDisabled={!selectedClient}>Week</Tab>
             <Tab isDisabled={!selectedClient}>Notes</Tab>
-            <Tab>Tasks Overview</Tab> 
+            <Tab>Tasks Overview</Tab>
           </TabList>
 
           <TabPanels>
@@ -154,7 +134,7 @@ function App() {
                 onClientChange={onClientChange}
               />
             </TabPanel>
-            <TabPanel> 
+            <TabPanel>
               {selectedClient && (
                 <>
                   <Header client={selectedClient} onClientChange={(c) => onClientChange(selectedClientId, c)} />
@@ -162,29 +142,28 @@ function App() {
                 </>
               )}
             </TabPanel>
-            <TabPanel> 
+            <TabPanel>
               {selectedClient && (
                 <CalendarView clientList={allClients} onClientChange={onClientChange} />
               )}
             </TabPanel>
-            <TabPanel> 
+            <TabPanel>
               {selectedClient && (
                 <WeeklyView clientList={allClients} onClientChange={onClientChange} />
               )}
             </TabPanel>
-            <TabPanel> 
+            <TabPanel>
               {selectedClient && (
                 <NotesDrawer client={selectedClient} onClientChange={(c) => onClientChange(selectedClientId, c)} />
               )}
             </TabPanel>
-            <TabPanel> 
-              {/* TaskBuckets was here - now rendered above for test * /}
-              {/* <TaskBuckets clientList={allClients} onClientChange={onClientChange} /> * /}
+            <TabPanel>
+              {/* TaskBuckets was here - now rendered above for test */}
+              {/* <TaskBuckets clientList={allClients} onClientChange={onClientChange} /> */}
             </TabPanel>
           </TabPanels>
         </Tabs>
       </Box>
-      */}
     </ChakraProvider>
   );
 }
