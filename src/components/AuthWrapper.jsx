@@ -14,7 +14,6 @@ export default function AuthWrapper() {
 
   const handleLogin = async (username, password) => {
     try {
-      // First verify the user exists
       const loginRes = await fetch(`${BACKEND_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,15 +25,9 @@ export default function AuthWrapper() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Then try to load their data
-      const dataRes = await fetch(`${BACKEND_URL}/api/data/${username}`);
-      if (!dataRes.ok) {
-        throw new Error('Failed to load user data');
-      }
-
-      const data = await dataRes.json();
+      const data = await loginRes.json();
       localStorage.setItem('mona_active_user', username);
-      localStorage.setItem(`ClientList_${username}`, JSON.stringify(data));
+      localStorage.setItem(`ClientList_${username}`, JSON.stringify(data.clients || {}));
       setActiveUser(username);
     } catch (err) {
       console.error(err);
